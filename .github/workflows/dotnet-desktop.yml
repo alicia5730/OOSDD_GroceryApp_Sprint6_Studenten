@@ -1,0 +1,94 @@
+name: Build & Test Grocery App
+
+on:
+  push:
+    branches: [ "main", "dev" , "hotfix"]
+  pull_request:
+    branches: [ "main", "dev", "hotfix" ]
+
+jobs:
+  build-test:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      # ✅ Install MAUI workloads
+      - name: Install MAUI workloads
+        run: |
+          dotnet workload install maui
+          dotnet workload install maui-android
+          dotnet workload install maui-windows
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            nuget-${{ runner.os }}-
+
+      - name: Clean solution
+        run: dotnet clean Grocery.sln
+
+      - name: Restore all projects
+        run: dotnet restore Grocery.sln
+
+      - name: Build solution
+        run: dotnet build Grocery.sln --configuration Release --no-restore
+
+      - name: Run Unit Tests
+        run: dotnet test TestCore/TestCore.csproj --no-build --configuration Release --logger "trx;LogFileName=test_results.trx" --results-directory ./TestResults
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: TestResults
+          path: ./TestResults
+
+      # ✅ Windows MAUI build
+      - name: Publish MAUI Windows
+        if: success()
+        run: |
+          dotnet publish Grocery.App/Grocery.App.csproj `
+            -c Release `
+            -f net8.0-windows10.0.19041.0 `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishReadyToRun=false `
+            -p:UseAppHost=true `
+            -o ./artifacts/windows
+
+      - name: Upload Windows artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GroceryApp-Windows
+          path: ./artifacts/windows
+
+      # 🧠 Publish Android alleen als SDK aanwezig is (of handmatig ingeschakeld)
+      - name: Publish MAUI Android (optional)
+        if: success() && env.ANDROID_SDK_ROOT != ''
+        continue-on-error: true
+        run: |
+          echo "📱 Android SDK gevonden, probeer te builden..."
+          dotnet publish Grocery.App/Grocery.App.csproj `
+            -c Release `
+            -f net8.0-android `
+            -p:AndroidPackageFormat=apk `
+            -p:PublishReadyToRun=false `
+            -o ./artifacts/android
+
+      - name: Upload Android artifact
+        if: success() && env.ANDROID_SDK_ROOT != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: GroceryApp-Android
+          path: ./artifacts/android
