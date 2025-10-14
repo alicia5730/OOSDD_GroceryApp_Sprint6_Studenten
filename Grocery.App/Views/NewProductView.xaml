@@ -11,7 +11,7 @@
 
     <VerticalStackLayout Padding="20" Spacing="15">
         <Entry Placeholder="Naam" Text="{Binding Name}" />
-        <Entry Placeholder="Prijs (€)" Keyboard="Numeric" Text="{Binding Price}" />
+        <Entry Placeholder="Prijs (bij. 2,50)" Keyboard="Numeric" Text="{Binding Price}" />
         <Entry Placeholder="Voorraad" Keyboard="Numeric" Text="{Binding Stock}" />
         <DatePicker Date="{Binding ShelfLife}" />
         <Button Text="Opslaan" Command="{Binding SaveProductCommand}" />
