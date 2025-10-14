@@ -15,6 +15,7 @@ namespace Grocery.App.ViewModels
             Load();
         }
 
+        
         public override void Load()
         {
             Products.Clear();
