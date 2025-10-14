@@ -16,6 +16,17 @@ namespace Grocery.Core.Data
             string projectDirectory = AppDomain.CurrentDomain.BaseDirectory;
             string dbpath = "Data Source="+ Path.Combine(projectDirectory + databaseName);
             Connection = new SqliteConnection(dbpath);
+            try
+            {
+                // 👇 forceer dat SQLite het bestand echt aanmaakt
+                Connection.Open();
+                Console.WriteLine($"✅ SQLite DB initialized at: {Path.Combine(projectDirectory, databaseName)}");
+                Connection.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Failed to create SQLite DB: {ex.Message}");
+            }
         }
 
         protected void OpenConnection()
