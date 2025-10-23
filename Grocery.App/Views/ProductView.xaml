@@ -10,7 +10,11 @@
             <Label Text="Producten" FontSize="Large" HorizontalOptions="Center" VerticalOptions="Center" />
         </Grid>
     </Shell.TitleView>
-
+    
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Nieuw" Command="{Binding AddNewProductCommand}" />
+    </ContentPage.ToolbarItems>
+    
     <Border Stroke="#C49B33" StrokeThickness="4" Padding="10" Margin="10" HorizontalOptions="Center">
         <CollectionView ItemsSource="{Binding Products}" Margin="20" HorizontalOptions="Center">
             <CollectionView.ItemsLayout>
@@ -48,7 +52,7 @@
                             </Label.Triggers>
                         </Label>
                         <Label Grid.Column="2" Text="{Binding ShelfLife}" HorizontalOptions="End"/>
-                        <Label Grid.Column="3" Text="{Binding Price}" HorizontalOptions="End"/>
+                        <Label Grid.Column="3" Text="{Binding FormattedPrice}" HorizontalOptions="End"/>
                     </Grid>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

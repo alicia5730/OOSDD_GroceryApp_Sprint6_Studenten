@@ -9,13 +9,25 @@ namespace Grocery.Core.Data
         protected SqliteConnection Connection { get; }
         string databaseName;
 
-        public DatabaseConnection()
+        public DatabaseConnection(string? overrideConnection = null)
         {
-            databaseName = ConnectionHelper.ConnectionStringValue("GroceryAppDb");
-            //string workingDirectory = Environment.CurrentDirectory;
+            // 1️⃣ Gebruik override of fallback naar appsettings
+            databaseName = !string.IsNullOrEmpty(overrideConnection)
+                ? overrideConnection
+                : ConnectionHelper.ConnectionStringValue("GroceryAppDb");
+
+            // 2️⃣ Bouw pad correct op
             string projectDirectory = AppDomain.CurrentDomain.BaseDirectory;
-            string dbpath = "Data Source="+ Path.Combine(projectDirectory + databaseName);
+            string fullPath = Path.Combine(projectDirectory, databaseName);
+
+            // 3️⃣ Zorg dat map bestaat
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath)!);
+
+            // 4️⃣ Maak SQLite-verbinding
+            string dbpath = $"Data Source={fullPath}";
             Connection = new SqliteConnection(dbpath);
+            Console.WriteLine($"🧩 Using SQLite database at: {fullPath}");
+
             try
             {
                 // 👇 forceer dat SQLite het bestand echt aanmaakt

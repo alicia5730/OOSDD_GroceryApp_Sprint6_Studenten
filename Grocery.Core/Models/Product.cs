@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace Grocery.Core.Models
 {
@@ -24,5 +25,7 @@ namespace Grocery.Core.Models
         {
             return $"{Name} - {Stock} op voorraad";
         }
+        public string FormattedPrice => Price.ToString("0.00", CultureInfo.GetCultureInfo("nl-NL"));
+
     }
 }
