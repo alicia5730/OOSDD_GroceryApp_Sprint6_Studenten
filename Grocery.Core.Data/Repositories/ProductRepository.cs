@@ -6,7 +6,7 @@ namespace Grocery.Core.Data.Repositories
     public class ProductRepository :DatabaseConnection, IProductRepository
     {
         private readonly List<Product> products;
-        public ProductRepository()
+        public ProductRepository(string? dbFile = null) : base(dbFile)
         {
             // Tabel aanmaken als die nog niet bestaat
             CreateTable(@"CREATE TABLE IF NOT EXISTS Product (
@@ -106,6 +106,12 @@ namespace Grocery.Core.Data.Repositories
 
         public Product Add(Product item)
         {
+            if (item.Price <= 0)
+                throw new ArgumentException("Prijs moet groter zijn dan 0.");
+
+            if (string.IsNullOrWhiteSpace(item.Name))
+                throw new ArgumentException("Productnaam is verplicht.");
+
             OpenConnection();
             using var command = Connection.CreateCommand();
             command.CommandText = "INSERT INTO Product (Name, Stock, ShelfLife, Price) VALUES (@n, @s, @e, @p)";
@@ -115,7 +121,8 @@ namespace Grocery.Core.Data.Repositories
             command.Parameters.AddWithValue("@p", item.Price);
             command.ExecuteNonQuery();
             CloseConnection();
-            return item;        }
+            return item; 
+        }
 
         public Product? Delete(Product item)
         {

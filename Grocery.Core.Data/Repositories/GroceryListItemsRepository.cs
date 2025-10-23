@@ -64,12 +64,25 @@ namespace Grocery.Core.Data.Repositories
 
         public GroceryListItem Add(GroceryListItem item)
         {
-            string insertQuery = @"
-                INSERT INTO GroceryListItem(GroceryListId, ProductId, Amount)
-                VALUES(@GroceryListId, @ProductId, @Amount);
-                SELECT last_insert_rowid();";
-
             OpenConnection();
+            using (var checkCmd = Connection.CreateCommand())
+            {
+                checkCmd.CommandText = "SELECT COUNT(*) FROM GroceryListItem WHERE GroceryListId=@list AND ProductId=@prod";
+                checkCmd.Parameters.AddWithValue("@list", item.GroceryListId);
+                checkCmd.Parameters.AddWithValue("@prod", item.ProductId);
+                var count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                if (count > 0)
+                {
+                    CloseConnection();
+                    throw new InvalidOperationException("Product bestaat al in de boodschappenlijst.");
+                }
+            }
+
+            string insertQuery = @"
+        INSERT INTO GroceryListItem(GroceryListId, ProductId, Amount)
+        VALUES(@GroceryListId, @ProductId, @Amount);
+        SELECT last_insert_rowid();";
+
             using (SqliteCommand command = new(insertQuery, Connection))
             {
                 command.Parameters.AddWithValue("@GroceryListId", item.GroceryListId);
@@ -77,8 +90,8 @@ namespace Grocery.Core.Data.Repositories
                 command.Parameters.AddWithValue("@Amount", item.Amount);
                 item.Id = Convert.ToInt32(command.ExecuteScalar());
             }
-            CloseConnection();
 
+            CloseConnection();
             groceryListItems.Add(item);
             return item;
         }
