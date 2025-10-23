@@ -9,7 +9,7 @@
         <TargetFrameworks Condition="'$(AndroidSdkDirectory)' != ''">
             $(TargetFrameworks);net8.0-android
         </TargetFrameworks>
-
+	
         <OutputType>Exe</OutputType>
         <RootNamespace>Grocery.App</RootNamespace>
         <UseMaui>true</UseMaui>
@@ -104,5 +104,9 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-
+    <ItemGroup>
+       <None Update="appsettings.json">
+           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+       </None>
+    </ItemGroup>
 </Project>

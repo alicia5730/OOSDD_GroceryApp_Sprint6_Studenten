@@ -16,11 +16,6 @@
 	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.1" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.1" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Page Include="appsettings.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </Page>
-	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Grocery.Core\Grocery.Core.csproj" />
